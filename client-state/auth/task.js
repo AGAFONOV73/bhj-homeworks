@@ -4,6 +4,16 @@ document.addEventListener("DOMContentLoaded", () => {
   const welcomeBlock = document.getElementById("welcome");
   const userIdSpan = document.getElementById("user_id");
 
+  const savedUserId = localStorage.getItem("user_id");
+  if (savedUserId) {
+    userIdSpan.textContent = savedUserId;
+    signinBlock.classList.remove("signin_active");
+    welcomeBlock.style.display = "block";
+  } else {
+    signinBlock.classList.add("signin_active");
+    welcomeBlock.style.display = "none";
+  }
+
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -21,7 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
     params.append("password", password);
 
     try {
-      const response = await fetch(form.ariaDescription, {
+      const response = await fetch(form.action, {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
@@ -36,9 +46,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const data = await response.json();
       if (data.success) {
-        userIdSpan.textContent = data.user_id || "неизвестный";
+        const userId = data.user_id || "неизвестный";
+        userIdSpan.textContent = userId;
+
+        localStorage.setItem("user_id", userId);
+
         signinBlock.classList.remove("signin_active");
         welcomeBlock.style.display = "block";
+        form.reset();
       } else {
         alert("Неверный логин или пароль");
       }
